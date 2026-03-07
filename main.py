@@ -1,0 +1,55 @@
+from service.scrape_post import scrape_post
+from service.scrape_comments import scrape_comments
+from service.screenshot import save_screenshots_for_posts
+from service.audio import generate_audio_for_post
+from service.video import create_final_video
+from pprint import pprint
+import os
+import random
+
+
+def main():
+    print("Fetching top posts...")
+    limit = 3
+    response = scrape_post(limit=limit)
+    if not response:
+        print("Failed to fetch posts.")
+        return
+    
+    print(f"Fetched {len(response)} posts.")
+    
+    for i, post in enumerate(response):
+        print(f"\n{'='*40}")
+        print(f"Processing Post {i + 1}/{len(response)}: {post['title'][:50]}...")
+        
+        print(f"\nFetching comments for: {post['url']}")
+        comments = scrape_comments(post["url"], limit=3)
+
+        # 1. Take Screenshots
+        print("\nStarting screenshot workflow...")
+        save_screenshots_for_posts([post], [comments])
+
+        # 2. Generate Audio (edge-tts)
+        print("\nGenerating Audio TTS...")
+        generate_audio_for_post(post, comments)
+
+        # 3. Create Final Video
+        print("\nStitching Final Video...")
+        
+        # Select a random background video
+        bg_dir = "backgrounds"
+        try:
+            bg_files = [f for f in os.listdir(bg_dir) if f.endswith(".mp4")]
+            bg_path = os.path.join(bg_dir, random.choice(bg_files))
+            print(f"Selected background: {bg_path}")
+        except Exception as e:
+            print(f"Error picking background: {e}. Falling back to background.mp4")
+            bg_path = "background.mp4"
+
+        create_final_video(post, comments, background_vid_path=bg_path)
+
+    print("\n🎉 Full Pipeline Completed for all posts!")
+
+
+if __name__ == "__main__":
+    main()
