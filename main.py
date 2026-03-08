@@ -6,9 +6,18 @@ from service.video import create_final_video
 from pprint import pprint
 import os
 import random
-
+import json
 
 def main():
+    history_file = "generated_videos.json"
+    generated_history = []
+    if os.path.exists(history_file):
+        try:
+            with open(history_file, "r") as f:
+                generated_history = json.load(f)
+        except json.JSONDecodeError:
+            pass
+
     print("Fetching top posts...")
     limit = 3
     response = scrape_post(limit=limit)
@@ -46,7 +55,15 @@ def main():
             print(f"Error picking background: {e}. Falling back to background.mp4")
             bg_path = "background.mp4"
 
-        create_final_video(post, comments, background_vid_path=bg_path)
+        success = create_final_video(post, comments, background_vid_path=bg_path)
+        if success:
+            generated_history.append({
+                "post_id": post["id"],
+                "title": post["title"]
+            })
+            # Save incrementally
+            with open(history_file, "w", encoding="utf-8") as f:
+                json.dump(generated_history, f, indent=4, ensure_ascii=False)
 
     print("\n🎉 Full Pipeline Completed for all posts!")
 

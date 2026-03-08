@@ -94,11 +94,19 @@ def create_final_video(post, comments, background_vid_path, output_dir="content"
 
         # 4. Trim the background video to the total duration of the spoken content
         # If the background clip is shorter than total_duration, loop it
-        if bg_clip.duration < total_duration:
+        if bg_clip.duration is not None and bg_clip.duration < total_duration:
              from moviepy.video.fx import Loop
              bg_clip = bg_clip.with_effects([Loop(duration=total_duration)])
-        
-        bg_clip = bg_clip.subclipped(0, total_duration)
+             bg_clip = bg_clip.subclipped(0, total_duration)
+        else:
+             import random
+             # If bg_clip.duration is None (some formats), we just subclip from 0
+             if bg_clip.duration:
+                 max_start = max(0, bg_clip.duration - total_duration)
+                 start_time = random.uniform(0, max_start)
+                 bg_clip = bg_clip.subclipped(start_time, start_time + total_duration)
+             else:
+                 bg_clip = bg_clip.subclipped(0, total_duration)
 
         # 5. Composite the foreground over the background
         final_video = CompositeVideoClip([bg_clip, foreground_clip])
