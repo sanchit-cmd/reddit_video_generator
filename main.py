@@ -8,6 +8,7 @@ import os
 import random
 import json
 
+
 def main():
     history_file = "generated_videos.json"
     generated_history = []
@@ -24,13 +25,13 @@ def main():
     if not response:
         print("Failed to fetch posts.")
         return
-    
+
     print(f"Fetched {len(response)} posts.")
-    
+
     for i, post in enumerate(response):
         print(f"\n{'='*40}")
         print(f"Processing Post {i + 1}/{len(response)}: {post['title'][:50]}...")
-        
+
         print(f"\nFetching comments for: {post['url']}")
         comments = scrape_comments(post["url"], limit=3)
 
@@ -44,7 +45,7 @@ def main():
 
         # 3. Create Final Video
         print("\nStitching Final Video...")
-        
+
         # Select a random background video
         bg_dir = "backgrounds"
         try:
@@ -57,10 +58,7 @@ def main():
 
         success = create_final_video(post, comments, background_vid_path=bg_path)
         if success:
-            generated_history.append({
-                "post_id": post["id"],
-                "title": post["title"]
-            })
+            generated_history.append({"post_id": post["id"], "title": post["title"]})
             # Save incrementally
             with open(history_file, "w", encoding="utf-8") as f:
                 json.dump(generated_history, f, indent=4, ensure_ascii=False)

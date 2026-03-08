@@ -8,7 +8,7 @@ def scrape_post(
     subreddit: str = "AskReddit",
     limit: int = 5,
     time_filter: str = "day",
-    max_title_length: int = 80,
+    max_title_length: int = 150,
 ) -> List[Dict]:
     """
     Scrape top posts from a given subreddit using Reddit's JSON API.
@@ -17,16 +17,14 @@ def scrape_post(
         subreddit: Subreddit name (without r/)
         limit: Number of posts to scrape (default: 5)
         time_filter: Time filter for top posts - 'day', 'week', 'month', 'year', 'all'
-        max_title_length: Maximum length of the title (default: 80)    
+        max_title_length: Maximum length of the title (default: 150)
 
     Returns:
         List of dictionaries containing post data (title, author, score, url, comments)
     """
     # Fetch a larger batch to account for filtered out NSFW posts
     fetch_limit = max(limit * 3, 25)
-    link = (
-        f"https://www.reddit.com/r/{subreddit}/top/.json?t={time_filter}&limit={fetch_limit}"
-    )
+    link = f"https://www.reddit.com/r/{subreddit}/top/.json?t={time_filter}&limit={fetch_limit}"
 
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -52,9 +50,9 @@ def scrape_post(
         for post_item in posts_data:
             if len(posts) >= limit:
                 break
-                
+
             post = post_item.get("data", {})
-            
+
             # Skip NSFW / 18+ content
             if post.get("over_18"):
                 continue
