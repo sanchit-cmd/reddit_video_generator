@@ -3,6 +3,7 @@ from service.scrape_comments import scrape_comments
 from service.screenshot import save_screenshots_for_posts
 from service.audio import generate_audio_for_post
 from service.video import create_final_video
+from service.instagram import upload_post
 from pprint import pprint
 import os
 import random
@@ -33,7 +34,7 @@ def main():
         print(f"Processing Post {i + 1}/{len(response)}: {post['title'][:50]}...")
 
         print(f"\nFetching comments for: {post['url']}")
-        comments = scrape_comments(post["url"], limit=3)
+        comments = scrape_comments(post["url"], limit=5)
 
         # 1. Take Screenshots
         print("\nStarting screenshot workflow...")
@@ -58,10 +59,22 @@ def main():
 
         success = create_final_video(post, comments, background_vid_path=bg_path)
         if success:
-            generated_history.append({"post_id": post["id"], "title": post["title"]})
+            caption = f"{post['title']} | Reddit Story\n\n#shorts #shortvideo #short #shortsfeed #shortsvideo #shortsviral #shortfeed #reddit #redditstories #redditstorytime #redditstory #viral #viralvideo #virealshorts #parkour #minecraft"
+
+            generated_history.append(
+                {"post_id": post["id"], "title": post["title"], "caption": caption}
+            )
             # Save incrementally
             with open(history_file, "w", encoding="utf-8") as f:
                 json.dump(generated_history, f, indent=4, ensure_ascii=False)
+
+            upload_success = upload_post(
+                f"content/{post["id"]}/final_video.mp4", caption
+            )
+            if upload_success:
+                print("upload complete")
+            else:
+                print("failed to upload")
 
     print("\n🎉 Full Pipeline Completed for all posts!")
 
