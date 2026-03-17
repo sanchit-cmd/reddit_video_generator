@@ -3,7 +3,9 @@ from pprint import pprint
 from typing import List, Dict
 
 
-def scrape_comments(post_url: str, limit: int = 3, max_length: int = 200) -> List[Dict]:
+def scrape_comments(
+    post_url: str, limit: int = 3, max_length: int = 300, min_length=30
+) -> List[Dict]:
     """
     Scrape top comments from a Reddit post using Reddit's JSON API.
 
@@ -64,9 +66,9 @@ def scrape_comments(post_url: str, limit: int = 3, max_length: int = 200) -> Lis
                 continue
 
             comment_text = comment.get("body", "")
-            
+
             # Skip comments that are too long (keeps videos short)
-            if len(comment_text) > max_length:
+            if min_length < len(comment_text) > max_length:
                 continue
 
             comment_data = {
@@ -74,7 +76,7 @@ def scrape_comments(post_url: str, limit: int = 3, max_length: int = 200) -> Lis
                 "author": comment.get("author", "Unknown"),
                 "score": comment.get("score", 0),
                 "text": comment_text,
-                "created_at": comment.get("created_utc", 0)
+                "created_at": comment.get("created_utc", 0),
             }
 
             comments.append(comment_data)

@@ -22,6 +22,7 @@ def main():
 
     print("Fetching top posts...")
     limit = 3
+    # subreddit = "shittyaskreddit"
     response = scrape_post(limit=limit)
     if not response:
         print("Failed to fetch posts.")
@@ -59,7 +60,7 @@ def main():
 
         success = create_final_video(post, comments, background_vid_path=bg_path)
         if success:
-            caption = f"{post['title']} | Reddit Story\n\n#shorts #shortvideo #short #shortsfeed #shortsvideo #shortsviral #shortfeed #reddit #redditstories #redditstorytime #redditstory #viral #viralvideo #virealshorts #parkour #minecraft"
+            caption = f"""{post['title']} | Reddit Story\n#shorts #shortvideo #short #shortsfeed #shortsvideo #shortsviral #shortfeed #reddit #redditstories #redditstorytime #redditstory #viral #viralvideo #virealshorts #parkour #minecraft"""
 
             generated_history.append(
                 {"post_id": post["id"], "title": post["title"], "caption": caption}
@@ -68,9 +69,8 @@ def main():
             with open(history_file, "w", encoding="utf-8") as f:
                 json.dump(generated_history, f, indent=4, ensure_ascii=False)
 
-            upload_success = upload_post(
-                f"content/{post["id"]}/final_video.mp4", caption
-            )
+            abs_video_path = os.path.abspath(f"content/{post['id']}/final_video.mp4")
+            upload_success = upload_post(abs_video_path, caption)
             if upload_success:
                 print("upload complete")
             else:

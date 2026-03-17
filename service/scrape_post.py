@@ -8,7 +8,7 @@ def scrape_post(
     subreddit: str = "AskReddit",
     limit: int = 5,
     time_filter: str = "day",
-    max_title_length: int = 150,
+    max_title_length: int = 250,
 ) -> List[Dict]:
     """
     Scrape top posts from a given subreddit using Reddit's JSON API.
