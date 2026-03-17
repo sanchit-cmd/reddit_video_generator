@@ -1,4 +1,5 @@
 import requests
+import re
 from pprint import pprint
 from typing import List, Dict
 
@@ -65,10 +66,20 @@ def scrape_comments(
             if not comment.get("body") or comment.get("body") == "[deleted]":
                 continue
 
-            comment_text = comment.get("body", "")
+            comment_text = comment.get("body", "").strip()
+            
+            # Skip comments that are too short or too long
+            if len(comment_text) < min_length or len(comment_text) > max_length:
+                continue
 
-            # Skip comments that are too long (keeps videos short)
-            if min_length < len(comment_text) > max_length:
+            # Skip comments with links (http, https, www)
+            if re.search(r"https?://\S+|www\.\S+", comment_text):
+                print(f"Skipping comment {comment.get('id')} - contains link")
+                continue
+
+            # Skip comments with Reddit video/GIF/image syntax ![gif](...) or ![img](...)
+            if "![" in comment_text and "](" in comment_text:
+                print(f"Skipping comment {comment.get('id')} - contains embed/GIF")
                 continue
 
             comment_data = {

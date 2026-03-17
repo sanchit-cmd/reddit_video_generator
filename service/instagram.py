@@ -24,7 +24,7 @@ def upload_post(video_path: str, caption: str):
 
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-notifications")
-    options.add_argument("--no-sandbox")
+    # options.add_argument("--no-sandbox")
     # Setting an English locale helps avoid varying element text
     options.add_argument("--lang=en")
     options.add_argument("window-size=1200,800")
@@ -249,11 +249,13 @@ def upload_post(video_path: str, caption: str):
         # Dispatch a native Selenium keyboard event so React registers the content change
         caption_area.send_keys(" ")
         caption_area.send_keys(Keys.BACKSPACE)
-        time.sleep(0.5)
+        time.sleep(1)
 
-        # Press Enter in caption area to simulate real keyboard input
-        # This forces React to flush its internal state and persist the caption
-        caption_area.send_keys(Keys.ENTER)
+        # Click the area again to ensure focus is maintained before sharing
+        driver.execute_script(
+            "arguments[0].dispatchEvent(new MouseEvent('click', {view: window, bubbles: true, cancelable: true}));",
+            caption_area,
+        )
         time.sleep(1)
 
         # Verify caption was registered
