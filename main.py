@@ -22,8 +22,8 @@ def main():
 
     print("Fetching top posts...")
     limit = 3
-    subreddit = "shittyaskreddit"
-    response = scrape_post(subreddit=subreddit, limit=limit, time_filter="month")
+    subreddit = "programminghorror"  # programminghorror | shittyaskreddit
+    response = scrape_post(subreddit=subreddit, limit=limit, time_filter="day")
     if not response:
         print("Failed to fetch posts.")
         return
